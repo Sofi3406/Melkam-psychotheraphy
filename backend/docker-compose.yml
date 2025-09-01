@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nexus
+      POSTGRES_DB: psych_db 
+    ports:
+      - '7777:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+
+  api:
+    build: .  
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgres://postgres:nexus@db:5432/psych_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app    
+    command: ['npm', 'run', 'dev']
+
+  worker:
+    build: .  
+    depends_on:
+      - db
+      - redis
+    command: ['npm', 'run', 'worker']
+
+volumes:
+  pgdata:
+  redisdata:

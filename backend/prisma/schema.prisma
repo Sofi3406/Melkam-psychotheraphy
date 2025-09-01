@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum AppointmentStatus {
+  PENDING
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum Role {
+  PATIENT
+  THERAPIST
+}
+
+// User model
+model User {
+  id                String            @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String            @unique
+  password          String
+  role              Role              @default(PATIENT)
+  isVerified        Boolean           @default(false)
+  verificationToken String?           @unique
+  refreshToken      String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relationships
+  patientAppointments   Appointment[]     @relation("patientAppointments")
+  therapistAppointments Appointment[]     @relation("therapistAppointments")
+  availabilitySlots     AvailabilitySlot[] @relation("therapistAvailability")
+}
+
+// Availability slots
+model AvailabilitySlot {
+  id          String   @id @default(uuid())
+  therapist   User     @relation("therapistAvailability", fields: [therapistId], references: [id])
+  therapistId String
+  startsAt    DateTime
+  endsAt      DateTime
+
+  @@unique([therapistId, startsAt, endsAt])
+  @@index([therapistId, startsAt])
+}
+
+// Appointment model
+model Appointment {
+  id          String   @id @default(uuid())
+  patient     User     @relation("patientAppointments", fields: [patientId], references: [id])
+  patientId   String
+  therapist   User     @relation("therapistAppointments", fields: [therapistId], references: [id])
+  therapistId String
+  startsAt    DateTime
+  endsAt      DateTime
+  status      AppointmentStatus @default(PENDING)
+  meetLink    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([therapistId, startsAt])
+  @@index([patientId, startsAt])
+}
