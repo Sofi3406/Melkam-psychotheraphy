@@ -1,5 +1,6 @@
-import request from "supertest";
-import app from "../index";  
+import request from "supertest";  
+import app from "../src/index";
+
 
 describe("API Health Check", () => {
   it("should return API is running", async () => {

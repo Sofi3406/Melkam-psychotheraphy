@@ -4,9 +4,11 @@
   "description": "- Each therapist cannot have overlapping `AvailabilitySlot`s.  \r   → Enforced with `@@unique([therapistId, startsAt, endsAt])`.",
   "main": "index.js",
   "scripts": {
-    "test": "jest --runInBand --detectOpenHandles",
-    "dev": "ts-node index.ts",
-    "worker": "ts-node worker.ts",
+    
+    "dev": "ts-node src/index.ts",
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "migrate:test": "cross-env NODE_ENV=test npx prisma migrate deploy --schema=prisma/schema.test.prisma",
+   "worker": "ts-node src/worker.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
@@ -22,6 +24,8 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
     "@types/supertest": "^6.0.3",
+    "cross-env": "^10.0.0",
+    "dotenv-cli": "^10.0.0",
     "jest": "^30.1.1",
     "prisma": "^6.15.0",
     "supertest": "^7.1.4",
@@ -31,8 +35,10 @@
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
+    "bullmq": "^5.58.4",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2"
   }
 }

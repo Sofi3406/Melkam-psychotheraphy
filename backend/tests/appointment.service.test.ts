@@ -73,7 +73,7 @@ describe("AppointmentService", () => {
       service.bookAppointment(
         patientId,
         therapistId,
-        new Date("2025-09-01T07:00:00Z"), // before availability
+        new Date("2025-09-01T07:00:00Z"), 
         new Date("2025-09-01T08:30:00Z"),
         "Outside hours"
       )

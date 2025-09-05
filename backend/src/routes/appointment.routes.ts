@@ -1,38 +1,30 @@
-import { Router, Request, Response, NextFunction } from "express";
+
+import { Router } from "express";
 import {
+  listAppointments,       
+  getAppointmentById,     
   createAppointment,
-  getAppointments,
-  getAppointment,
   updateAppointment,
   deleteAppointment,
 } from "../controllers/appointment.controller";
-import { verifyToken } from "../middlewares/auth";
+import { authenticate } from "../middlewares/auth";
 
 
 const router = Router();
 
-/**
- * Middleware: patients can only create appointments for themselves
- */
-function ensurePatientSelf(req: Request, res: Response, next: NextFunction) {
-  const user = req.user as { id: string; role: string }; // injected by verifyToken
-  const { patientId } = req.body;
+// Create
+router.post("/", authenticate, createAppointment);
 
-  if (user.role === "PATIENT" && patientId !== user.id) {
-    return res.status(403).json({
-      success: false,
-      message: "Patients can only create appointments for themselves.",
-    });
-  }
+// List
+router.get("/", authenticate, listAppointments);
 
-  next();
-}
+// Get by ID
+router.get("/:id", authenticate, getAppointmentById);
 
-// Routes
-router.post("/", verifyToken, ensurePatientSelf, createAppointment);
-router.get("/", verifyToken, getAppointments);
-router.get("/:id", verifyToken, getAppointment);
-router.put("/:id", verifyToken, updateAppointment);
-router.delete("/:id", verifyToken, deleteAppointment);
+// Update
+router.put("/:id", authenticate, updateAppointment);
+
+// Delete
+router.delete("/:id", authenticate, deleteAppointment);
 
 export default router;
